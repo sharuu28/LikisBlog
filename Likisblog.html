@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Likis Blog</title>
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        position: relative;
+        min-height: 100vh;
+    }
+    .header-bar {
+        width: 100%;
+        height: 80px;
+        background-color: #00274d;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 20px;
+        box-sizing: border-box;
+    }
+    .header-bar img {
+        height: 70px;
+        object-fit: contain;
+    }
+    .header-title {
+        flex: 1;
+        text-align: center;
+        color: white;
+        font-size: 26px;
+        font-weight: bold;
+        letter-spacing: 2px;
+    }
+    .sub-bar {
+        width: 100%;
+        height: 42px;
+        background-color: #ffe600;
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        padding: 0 20px;
+        box-sizing: border-box;
+    }
+    .logos {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+    }
+    .logos img {
+        height: 36px;
+        object-fit: contain;
+    }
+    .contact-info {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 30px;
+    }
+    .contact-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .contact-item img {
+        height: 20px;
+        width: 20px;
+        object-fit: contain;
+    }
+    .contact-item div {
+        display: flex;
+        flex-direction: column;
+        font-size: 13px;
+    }
+    .contact-item strong {
+        color: black;
+    }
+    .contact-item span {
+        color: #444;
+    }
+    .fab {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: #00274d;
+        color: white;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 32px;
+        cursor: pointer;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        transition: background-color 0.3s ease;
+        z-index: 1001;
+    }
+    .fab:hover {
+        background-color: #004080;
+    }
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 2000;
+        left: 0; top: 0;
+        width: 100%; height: 100%;
+        background: rgba(0,0,0,0.4);
+    }
+    .modal-content {
+        background: white;
+        margin: 50px auto;
+        width: 80%;
+        max-width: 1000px;
+        height: 80%;
+        display: flex;
+        flex-direction: column;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    .modal-header {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        border-bottom: 1px solid #ccc;
+    }
+    .title-input {
+        flex: 1;
+        font-size: 18px;
+        padding: 5px;
+        border: none;
+        outline: none;
+    }
+    .close-btn {
+        font-size: 24px;
+        border: none;
+        background: none;
+        cursor: pointer;
+    }
+    .toolbar {
+        display: flex;
+        gap: 5px;
+        padding: 8px;
+        border-bottom: 1px solid #ccc;
+    }
+    .toolbar button {
+        padding: 5px 8px;
+        border: 1px solid #ccc;
+        background: #f7f7f7;
+        cursor: pointer;
+    }
+    .toolbar button.active {
+        background: #ccc;
+    }
+    #editorArea {
+        flex: 1;
+        padding: 10px;
+        font-size: 14px;
+        border: none;
+        outline: none;
+        overflow-y: auto;
+    }
+    #editorArea:empty:before {
+        content: attr(data-placeholder);
+        color: #888;
+    }
+    .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        padding: 10px;
+        border-top: 1px solid #ccc;
+    }
+    .preview-btn {
+        background: #ccc;
+        border: none;
+        padding: 8px 12px;
+        cursor: pointer;
+    }
+    .publish-btn {
+        background: orange;
+        border: none;
+        padding: 8px 12px;
+        cursor: pointer;
+        color: white;
+        font-weight: bold;
+    }
+    #blogPosts {
+        padding: 20px;
+        max-width: 900px;
+        margin: auto;
+    }
+    .post {
+        background: white;
+        border: 1px solid #ddd;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 5px;
+    }
+    .post h2 {
+        margin: 0 0 10px 0;
+    }
+    .post-content-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .post-preview {
+        cursor: pointer;
+        color: #333;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: inline-block;
+        max-width: calc(100% - 100px);
+    }
+    .post-actions {
+        display: flex;
+        gap: 8px;
+    }
+    .post-actions button {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #00274d;
+    }
+    #welcomeSection {
+    text-align: center;
+    padding: 20px;
+    max-width: 900px;
+    margin: auto;
+    animation: popUp 1s ease-out forwards;
+}
+
+#welcomeSection p {
+    margin-bottom: 10px;
+    color: #333;
+    opacity: 0;
+    animation: fadeIn 1s ease forwards;
+}
+
+#welcomeSection p:first-child {
+    font-size: 20px;
+    font-weight: 500;
+    animation-delay: 0.2s;
+}
+
+#welcomeSection p:nth-child(2) {
+    font-size: 18px;
+    animation-delay: 0.4s;
+}
+
+#welcomeSection p:last-of-type {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    animation-delay: 0.6s;
+}
+
+#welcomeSection hr {
+    border: none;
+    height: 2px;
+    background-color: #ccc;
+    margin-top: 20px;
+    opacity: 0;
+    animation: fadeIn 1s ease forwards;
+    animation-delay: 0.8s;
+}
+
+@keyframes popUp {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+</style>
+</head>
+<body>
+
+<div class="header-bar">
+    <img src="https://littlekingdom.ac.in/wp-content/uploads/2023/12/litfun15-Photoroom.png">
+    <div class="header-title">LITTLE KINGDOM SCHOOL</div>
+    <img src="https://littlekingdom.ac.in/wp-content/uploads/2023/12/20241210-094510-removebg-preview.png">
+</div>
+
+<div class="sub-bar">
+    <div></div>
+    <div class="logos">
+        <img src="https://littlekingdom.ac.in/wp-content/uploads/2023/12/1733761536555.png">
+        <img src="https://littlekingdom.ac.in/wp-content/uploads/2023/12/20241210-100228-removebg-preview.png">
+        <img src="https://littlekingdom.ac.in/wp-content/uploads/2023/05/fit-india.png">
+    </div>
+    <div class="contact-info">
+        <div class="contact-item">
+            <img src="https://cdn-icons-png.flaticon.com/512/281/281769.png">
+            <div><strong>Email us</strong><span>likiscbse@gmail.com</span></div>
+        </div>
+        <div class="contact-item">
+            <img src="https://cdn-icons-png.flaticon.com/512/724/724664.png">
+            <div><strong>Call us</strong><span>9489916320, 9442116321</span></div>
+        </div>
+    </div>
+</div>
+<!-- Welcome Section -->
+<div id="welcomeSection">
+    <p>Welcome to the Little Kingdom School's Blog!</p>
+    <p>This is where our school shares updates, articles, and stories from students & staff.</p>
+    <p>A place to share our thoughts, ideas, and proudest moments.</p>
+    <hr>
+</div>
+
+
+<div id="blogPosts"></div>
+
+<div class="fab" onclick="openEditor()">+</div>
+
+<div class="modal" id="blogEditor">
+    <div class="modal-content">
+        <div class="modal-header">
+            <input type="text" placeholder="Title" class="title-input" id="blogTitle">
+            <button class="close-btn" onclick="closeEditor()">×</button>
+        </div>
+        <div class="toolbar">
+            <button id="boldBtn" onclick="formatText('bold')"><b>B</b></button>
+            <button id="italicBtn" onclick="formatText('italic')"><i>I</i></button>
+            <button id="underlineBtn" onclick="formatText('underline')"><u>U</u></button>
+        </div>
+        <div id="editorArea" contenteditable="true" data-placeholder="Write your blog here..."></div>
+        <div class="modal-footer">
+            <button class="preview-btn" onclick="previewBlog()">Preview</button>
+            <button class="publish-btn" onclick="publishBlog()">Publish</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="previewModal">
+    <div class="modal-content" style="padding:20px;">
+        <h2 id="previewTitle"></h2>
+        <div id="previewContent"></div>
+        <button onclick="closePreview()" style="margin-top:20px; padding:8px 12px; background:#00274d; color:white;">Close Preview</button>
+    </div>
+</div>
+
+<div class="modal" id="viewPostModal">
+    <div class="modal-content" style="padding:20px;">
+        <h2 id="viewPostTitle"></h2>
+        <div id="viewPostContent"></div>
+        <button onclick="closeViewPost()" style="margin-top:20px; padding:8px 12px; background:#00274d; color:white;">Close</button>
+    </div>
+</div>
+
+<script>
+let editingIndex = null;
+
+function loadPosts() {
+    const posts = JSON.parse(localStorage.getItem('blogPosts') || '[]');
+    document.getElementById('blogPosts').innerHTML = '';
+    posts.forEach((p, i) => addPostToDOM(p.title, p.content, i));
+}
+
+function addPostToDOM(title, content, index) {
+    const textOnly = content.replace(/<[^>]*>/g, '');
+    const previewText = textOnly.split(/\s+/).slice(0, 8).join(" ") + (textOnly.split(/\s+/).length > 8 ? "..." : "");
+
+    const post = document.createElement('div');
+    post.classList.add('post');
+    post.innerHTML = `
+        <h2>${title}</h2>
+        <div class="post-content-row">
+            <div class="post-preview" onclick="viewFullPost(${index})">${previewText}</div>
+            <div class="post-actions">
+                <button onclick="event.stopPropagation(); editPost(${index})">✏ Edit</button>
+                <button onclick="event.stopPropagation(); deletePost(${index})">🗑 Delete</button>
+            </div>
+        </div>
+    `;
+    document.getElementById('blogPosts').appendChild(post);
+}
+
+function openEditor(index = null) {
+    document.getElementById('blogEditor').style.display = 'block';
+    if (index !== null) {
+        editingIndex = index;
+        const posts = JSON.parse(localStorage.getItem('blogPosts') || '[]');
+        document.getElementById('blogTitle').value = posts[index].title;
+        document.getElementById('editorArea').innerHTML = posts[index].content;
+    } else {
+        editingIndex = null;
+        document.getElementById('blogTitle').value = "";
+        document.getElementById('editorArea').innerHTML = "";
+    }
+}
+
+function closeEditor() {
+    document.getElementById('blogEditor').style.display = 'none';
+}
+
+function editPost(index) {
+    openEditor(index);
+}
+
+function deletePost(index) {
+    if (confirm("Are you sure you want to delete this post?")) {
+        const posts = JSON.parse(localStorage.getItem('blogPosts') || '[]');
+        posts.splice(index, 1);
+        localStorage.setItem('blogPosts', JSON.stringify(posts));
+        loadPosts();
+    }
+}
+
+function formatText(command) {
+    document.execCommand(command, false, null);
+    updateToolbarState();
+}
+
+function updateToolbarState() {
+    document.getElementById('boldBtn').classList.toggle('active', document.queryCommandState('bold'));
+    document.getElementById('italicBtn').classList.toggle('active', document.queryCommandState('italic'));
+    document.getElementById('underlineBtn').classList.toggle('active', document.queryCommandState('underline'));
+}
+
+document.getElementById('editorArea').addEventListener('keyup', updateToolbarState);
+document.getElementById('editorArea').addEventListener('mouseup', updateToolbarState);
+
+function previewBlog() {
+    document.getElementById('previewTitle').innerText = document.getElementById('blogTitle').value;
+    document.getElementById('previewContent').innerHTML = document.getElementById('editorArea').innerHTML;
+    document.getElementById('previewModal').style.display = 'block';
+}
+
+function closePreview() {
+    document.getElementById('previewModal').style.display = 'none';
+}
+
+function publishBlog() {
+    const title = document.getElementById('blogTitle').value;
+    const content = document.getElementById('editorArea').innerHTML;
+    if (title.trim() === "" || content.trim() === "") {
+        alert("Please enter a title and content before publishing.");
+        return;
+    }
+    const posts = JSON.parse(localStorage.getItem('blogPosts') || '[]');
+    if (editingIndex !== null) {
+        posts[editingIndex] = { title, content };
+    } else {
+        posts.unshift({ title, content });
+    }
+    localStorage.setItem('blogPosts', JSON.stringify(posts));
+    loadPosts();
+    closeEditor();
+}
+
+function viewFullPost(index) {
+    const posts = JSON.parse(localStorage.getItem('blogPosts') || '[]');
+    document.getElementById('viewPostTitle').innerText = posts[index].title;
+    document.getElementById('viewPostContent').innerHTML = posts[index].content;
+    document.getElementById('viewPostModal').style.display = 'block';
+}
+
+function closeViewPost() {
+    document.getElementById('viewPostModal').style.display = 'none';
+}
+
+window.onload = loadPosts;
+</script>
+</body>
+</html>
